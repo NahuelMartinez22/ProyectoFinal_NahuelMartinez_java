@@ -27,9 +27,8 @@ public class CartController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Cart> getById(@PathVariable Long id) {
-        return cartService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Cart cart = cartService.findById(id);
+        return ResponseEntity.ok(cart);
     }
 
     @PostMapping("/{cartId}/items")

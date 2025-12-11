@@ -9,7 +9,9 @@ import com.talento.crud.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+
+import static com.talento.crud.exception.CartExceptions.*;
+import static com.talento.crud.exception.ProductExceptions.*;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -33,17 +35,32 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Optional<Cart> findById(Long id) {
-        return cartRepository.findById(id);
+    public Cart findById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("El id del carrito no puede ser nulo");
+        }
+
+        return cartRepository.findById(id)
+                .orElseThrow(() -> new CartNotFoundException(id));
     }
 
     @Override
     public Cart addItem(Long cartId, Long productId, Integer quantity) {
+        if (cartId == null) {
+            throw new IllegalArgumentException("El id del carrito no puede ser nulo");
+        }
+        if (productId == null) {
+            throw new IllegalArgumentException("El id del producto no puede ser nulo");
+        }
+        if (quantity == null || quantity <= 0) {
+            throw new CartInvalidStateException("La cantidad debe ser mayor a cero");
+        }
+
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+                .orElseThrow(() -> new CartNotFoundException(cartId));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
         CartItem item = new CartItem();
         item.setCart(cart);
@@ -59,14 +76,24 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart updateItem(Long cartId, Long itemId, Integer quantity) {
+        if (cartId == null) {
+            throw new IllegalArgumentException("El id del carrito no puede ser nulo");
+        }
+        if (itemId == null) {
+            throw new IllegalArgumentException("El id del item no puede ser nulo");
+        }
+        if (quantity == null || quantity <= 0) {
+            throw new CartInvalidStateException("La cantidad debe ser mayor a cero");
+        }
+
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+                .orElseThrow(() -> new CartNotFoundException(cartId));
 
         CartItem item = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item del carrito no encontrado"));
+                .orElseThrow(() -> new CartItemNotFoundException(cartId, itemId));
 
         if (!item.getCart().getId().equals(cart.getId())) {
-            throw new RuntimeException("El item no pertenece a este carrito");
+            throw new CartInvalidStateException("El item no pertenece a este carrito");
         }
 
         item.setQuantity(quantity);
@@ -77,14 +104,21 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart removeItem(Long cartId, Long itemId) {
+        if (cartId == null) {
+            throw new IllegalArgumentException("El id del carrito no puede ser nulo");
+        }
+        if (itemId == null) {
+            throw new IllegalArgumentException("El id del item no puede ser nulo");
+        }
+
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+                .orElseThrow(() -> new CartNotFoundException(cartId));
 
         CartItem item = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item del carrito no encontrado"));
+                .orElseThrow(() -> new CartItemNotFoundException(cartId, itemId));
 
         if (!item.getCart().getId().equals(cart.getId())) {
-            throw new RuntimeException("El item no pertenece a este carrito");
+            throw new CartInvalidStateException("El item no pertenece a este carrito");
         }
 
         cart.getItems().remove(item);
@@ -95,8 +129,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void clearCart(Long cartId) {
+        if (cartId == null) {
+            throw new IllegalArgumentException("El id del carrito no puede ser nulo");
+        }
+
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+                .orElseThrow(() -> new CartNotFoundException(cartId));
 
         cart.getItems().clear();
         cartRepository.save(cart);
