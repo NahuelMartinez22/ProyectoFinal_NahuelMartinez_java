@@ -1,6 +1,5 @@
 package com.talento.crud.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +16,6 @@ public class Cart {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @JsonIgnore
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
 

@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category update(Long id, Category category) {
         Category existing = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
         existing.setName(category.getName());
         existing.setDescription(category.getDescription());
@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new RuntimeException("Category not found");
+            throw new RuntimeException("Categoría no encontrada");
         }
         categoryRepository.deleteById(id);
     }

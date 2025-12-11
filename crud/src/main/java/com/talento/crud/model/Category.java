@@ -25,7 +25,6 @@ public class Category {
 
     public Category() {}
 
-    // Getters & setters
 
     public Long getId() {
         return id;

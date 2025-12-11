@@ -8,6 +8,7 @@ import com.talento.crud.repository.CartRepository;
 import com.talento.crud.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,10 +40,10 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart addItem(Long cartId, Long productId, Integer quantity) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         CartItem item = new CartItem();
         item.setCart(cart);
@@ -59,13 +60,13 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart updateItem(Long cartId, Long itemId, Integer quantity) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
         CartItem item = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new RuntimeException("Item del carrito no encontrado"));
 
         if (!item.getCart().getId().equals(cart.getId())) {
-            throw new RuntimeException("Item does not belong to this cart");
+            throw new RuntimeException("El item no pertenece a este carrito");
         }
 
         item.setQuantity(quantity);
@@ -77,13 +78,13 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart removeItem(Long cartId, Long itemId) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
         CartItem item = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new RuntimeException("Item del carrito no encontrado"));
 
         if (!item.getCart().getId().equals(cart.getId())) {
-            throw new RuntimeException("Item does not belong to this cart");
+            throw new RuntimeException("El item no pertenece a este carrito");
         }
 
         cart.getItems().remove(item);
@@ -95,9 +96,15 @@ public class CartServiceImpl implements CartService {
     @Override
     public void clearCart(Long cartId) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
         cart.getItems().clear();
         cartRepository.save(cart);
     }
+
+    @Override
+    public List<Cart> findAll() {
+        return cartRepository.findAll();
+    }
+
 }

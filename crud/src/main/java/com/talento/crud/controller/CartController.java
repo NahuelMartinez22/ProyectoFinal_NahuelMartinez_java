@@ -6,6 +6,8 @@ import com.talento.crud.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/carts")
 @CrossOrigin(origins = "*")
@@ -57,5 +59,10 @@ public class CartController {
     public ResponseEntity<Void> clearCart(@PathVariable Long cartId) {
         cartService.clearCart(cartId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Cart>> getAll() {
+        return ResponseEntity.ok(cartService.findAll());
     }
 }

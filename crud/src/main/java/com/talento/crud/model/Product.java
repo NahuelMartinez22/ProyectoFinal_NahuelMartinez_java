@@ -11,11 +11,9 @@ public class Product {
     private Long id;
 
     @Column(nullable = false)
-    private String name;       // e.g. "RTX 4060"
+    private String name;
 
-    private String brand;      // e.g. "NVIDIA", "AMD"
-    private String chipset;    // e.g. "RTX 4060", "RX 6700 XT"
-    private Integer vram;      // GB of VRAM
+    private Integer vram;
     private Double price;
     private Integer stock;
     private String imageUrl;
@@ -37,22 +35,6 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public String getChipset() {
-        return chipset;
-    }
-
-    public void setChipset(String chipset) {
-        this.chipset = chipset;
     }
 
     public Integer getVram() {

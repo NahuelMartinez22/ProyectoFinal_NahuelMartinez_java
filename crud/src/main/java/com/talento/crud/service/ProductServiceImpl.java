@@ -39,11 +39,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product update(Long id, Product product) {
         Product existing = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         existing.setName(product.getName());
-        existing.setBrand(product.getBrand());
-        existing.setChipset(product.getChipset());
         existing.setVram(product.getVram());
         existing.setPrice(product.getPrice());
         existing.setStock(product.getStock());
@@ -56,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Product not found");
+            throw new RuntimeException("Producto no encontrado");
         }
         productRepository.deleteById(id);
     }
