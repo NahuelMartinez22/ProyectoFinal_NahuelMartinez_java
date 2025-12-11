@@ -1,6 +1,8 @@
 package com.talento.crud.service;
 
+import com.talento.crud.model.Category;
 import com.talento.crud.model.Product;
+import com.talento.crud.repository.CategoryRepository;
 import com.talento.crud.repository.ProductRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -8,14 +10,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.talento.crud.exception.ProductExceptions.*;
+import static com.talento.crud.exception.CategoryExceptions.*;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -46,6 +52,16 @@ public class ProductServiceImpl implements ProductService {
     public Product create(Product product) {
         validateProduct(product);
 
+        Long categoryId = product.getCategory() != null ? product.getCategory().getId() : null;
+        if (categoryId == null) {
+            throw new IllegalArgumentException("El producto debe tener una categoría");
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
+
+        product.setCategory(category);
+
         if (productRepository.existsByNameIgnoreCase(product.getName())) {
             throw new ProductAlreadyExistsException("nombre: " + product.getName());
         }
@@ -65,6 +81,14 @@ public class ProductServiceImpl implements ProductService {
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
+        Long categoryId = product.getCategory() != null ? product.getCategory().getId() : null;
+        if (categoryId == null) {
+            throw new IllegalArgumentException("El producto debe tener una categoría");
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
+
         if (!existing.getName().equalsIgnoreCase(product.getName())
                 && productRepository.existsByNameIgnoreCase(product.getName())) {
             throw new ProductAlreadyExistsException("nombre: " + product.getName());
@@ -75,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
         existing.setPrice(product.getPrice());
         existing.setStock(product.getStock());
         existing.setImageUrl(product.getImageUrl());
-        existing.setCategory(product.getCategory());
+        existing.setCategory(category);
 
         return productRepository.save(existing);
     }
@@ -104,10 +128,18 @@ public class ProductServiceImpl implements ProductService {
         if (product.getName() == null || product.getName().isBlank()) {
             throw new IllegalArgumentException("El nombre del producto es obligatorio");
         }
-        if (product.getPrice() == null || product.getPrice() < 0) {
+
+        if (product.getPrice() == null) {
+            throw new IllegalArgumentException("El precio del producto es obligatorio");
+        }
+        if (product.getPrice() < 0) {
             throw new IllegalArgumentException("El precio del producto no puede ser negativo");
         }
-        if (product.getStock() != null && product.getStock() < 0) {
+
+        if (product.getStock() == null) {
+            throw new IllegalArgumentException("El stock del producto es obligatorio");
+        }
+        if (product.getStock() < 0) {
             throw new IllegalArgumentException("El stock no puede ser negativo");
         }
     }

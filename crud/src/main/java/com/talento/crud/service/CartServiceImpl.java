@@ -145,4 +145,12 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findAll();
     }
 
+    @Override
+    public void deleteCart(Long id) {
+        if (!cartRepository.existsById(id)) {
+            throw new RuntimeException("Carrito no encontrado");
+        }
+        cartRepository.deleteById(id);
+    }
+
 }
